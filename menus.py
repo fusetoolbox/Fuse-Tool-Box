@@ -11,6 +11,7 @@ menus = [
         {"page_id": "page_pdf_chaifen", "tool_name": "PDF拆分"},
         {"page_id": "page_pdf_hebing", "tool_name": "PDF合并"},
         {"page_id": "page_pdf_tiqu", "tool_name": "PDF提取"},
+        {"page_id": "page_pdf_toimg", "tool_name": "PDF转图片"},
     ]},
     {"menu_name": "编号工具", "child": [
         {"page_id": "page_ids_gen", "tool_name": "批量生成编号"},

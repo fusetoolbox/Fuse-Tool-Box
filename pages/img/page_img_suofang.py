@@ -270,7 +270,7 @@ class Ui_page(QWidget):
         dpi_x = self.cfg_dpi_w_input.text()
         dpi_x = dpi_x.strip()
         if dpi_x == "":
-            dpi_x = 0
+            dpi_x = "0"
         if not dpi_x.isnumeric():
             QMessageBox.warning(self, "警告", "水平DPI设置格式错误")
             return
@@ -279,7 +279,7 @@ class Ui_page(QWidget):
         dpi_y = self.cfg_dpi_h_input.text()
         dpi_y = dpi_y.strip()
         if dpi_y == "":
-            dpi_y = 0
+            dpi_y = "0"
         if not dpi_y.isnumeric():
             QMessageBox.warning(self, "警告", "垂直DPI设置格式错误")
             return

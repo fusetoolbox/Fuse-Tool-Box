@@ -1,9 +1,9 @@
 from pathlib import Path
 
 from PySide6.QtCore import QDir, QThread, QObject, Signal, Qt
-from PySide6.QtGui import QIntValidator
+
 from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGroupBox,
-                               QPushButton, QLineEdit, QPlainTextEdit, QFileDialog, QMessageBox)
+                               QPushButton, QLineEdit, QFileDialog, QMessageBox)
 import os
 import pymupdf
 

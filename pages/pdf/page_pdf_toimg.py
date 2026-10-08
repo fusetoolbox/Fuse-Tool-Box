@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from rapidocr import RapidOCR
-from PySide6.QtCore import QDir, QThread, QObject, Signal, Qt, QDateTime
+from PySide6.QtCore import QDir, QThread, QObject, Signal, Qt
 
 from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGroupBox,
-                               QPushButton, QLineEdit, QFileDialog, QMessageBox,QComboBox)
+                               QPushButton, QLineEdit, QFileDialog, QMessageBox)
 import os
+import pymupdf
 
 
 class WorkChaiFen(QObject):
@@ -15,53 +15,41 @@ class WorkChaiFen(QObject):
     def run(self, get_data):
         folder_path = get_data["folder_path"]
         save_path = get_data["save_path"]
-        output_method = get_data["output_method"]
-        IMAGE_EXTS = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.webp'}
-        OUTPUT_ENCODING = 'utf-8'
 
-        folder_path = Path(folder_path).resolve()
-        save_path = Path(save_path).resolve()
-        images = [
-            f for f in folder_path.iterdir()
-            if f.is_file() and f.suffix.lower() in IMAGE_EXTS
-        ]
-        if not images:
-            self.finished.emit(f"[提示] 目录 {folder_path} 中没有找到图片文件")
+        directory = Path(folder_path).resolve()
+        out_dir = Path(save_path).resolve()
+
+        pdf_files = sorted(
+            p for p in directory.iterdir()
+            if p.is_file() and p.suffix.lower() == ".pdf"
+        )
+        if not pdf_files:
+            self.finished.emit("⚠️ 该目录下没有找到 PDF 文件。")
             return
-        engine = RapidOCR()
-        merged_lines = []
-
-        all_task = len(images)
-        for idx, now_image in enumerate(images, 1):
+        all_task = len(pdf_files)
+        for num_task, path in enumerate(pdf_files, 1):
+            self.progress.emit(f"⏳ {num_task}/{all_task}")
             try:
-                result = engine(str(now_image))
-                if result is None or result.txts is None or len(result.txts) == 0:
-                    text = ""
-                    self.progress.emit(f"{now_image.name}未识别到文字")
-                else:
-                    text = "\n".join(result.txts)
-                    self.progress.emit(f"{now_image.name}识别到 {len(result.txts)} 行文字")
-
-                if output_method==1:
-                    out_file = save_path / f"{now_image.stem}.txt"
-                    with open(out_file, 'w', encoding=OUTPUT_ENCODING) as f:
-                        f.write(text)
-                else:
-                    merged_lines.append(f"===== {now_image.name} =====")
-                    merged_lines.append(text if text else "(无文字)")
-                    merged_lines.append("")  # 空行分隔
+                file_name = path.stem
+                output_dir = out_dir / file_name
+                Path(output_dir).mkdir(parents=True, exist_ok=True)
+                # 打开源文件
+                with pymupdf.open(path) as doc:
+                    total_pages = len(doc)
+                    mat = pymupdf.Matrix(4, 4)
+                    for page_idx in range(total_pages):
+                        self.progress.emit(f"⏳ {num_task}/{all_task} 文件：{file_name} 第{page_idx}页")
+                        page = doc[page_idx]
+                        pix = page.get_pixmap(matrix=mat, alpha=False)
+                        img_save_path =f"{output_dir/file_name}_{page_idx + 1}.jpg"
+                        pix.save(img_save_path)
+                        # 释放pix内存
+                        del pix
 
             except Exception as e:
-                self.progress.emit(f"[失败] {now_image.name}: {e}")
+                self.progress.emit(f"[失败] {e}")
 
-            self.progress.emit(f"⏳ {idx}/{all_task} 当前文件：{now_image.name}")
-        if output_method==0 and merged_lines:
-            merged_file = save_path / "ocr_results.txt"
-            with open(merged_file, 'w', encoding=OUTPUT_ENCODING) as f:
-                f.write("\n".join(merged_lines))
-
-        current_time = QDateTime.currentDateTime().toString("hh 时 mm 分 ss")
-        self.finished.emit(f"✅️ 任务完成 (完成于 {current_time})")
+        self.finished.emit("✅️ 任务完成")
 
 
 class Ui_page(QWidget):
@@ -74,8 +62,7 @@ class Ui_page(QWidget):
         self.groupbox.setMaximumWidth(400)
         self.group_lay = QVBoxLayout()
         self.config_get_file_lay = QHBoxLayout()
-        self.cfg_g_f_label = QLabel("文件位置：")
-        self.cfg_g_f_label.setMinimumWidth(69)
+        self.cfg_g_f_label = QLabel("文件位置:")
         self.cfg_g_f_input = QLineEdit()
         self.cfg_g_f_btn = QPushButton("📂 选择位置")
         self.cfg_g_f_btn.clicked.connect(self.open_g_f_path)
@@ -84,17 +71,8 @@ class Ui_page(QWidget):
         self.config_get_file_lay.addWidget(self.cfg_g_f_input)
         self.config_get_file_lay.addWidget(self.cfg_g_f_btn)
 
-        self.config_output_lay = QHBoxLayout()
-        self.cfg_output_label = QLabel("输出方式：")
-        self.cfg_output_label.setMinimumWidth(69)
-        self.cfg_o_m_combox=QComboBox()
-        self.cfg_o_m_combox.addItems(["单个文本文件","多个文本文件"])
-        self.config_output_lay.addWidget(self.cfg_output_label)
-        self.config_output_lay.addWidget(self.cfg_o_m_combox,1)
-
         self.config_save_file_lay = QHBoxLayout()
-        self.cfg_s_f_label = QLabel("存储位置：")
-        self.cfg_s_f_label.setMinimumWidth(69)
+        self.cfg_s_f_label = QLabel("存储位置:")
         self.cfg_s_f_input = QLineEdit()
         self.cfg_s_f_btn = QPushButton("📂 选择位置")
         self.cfg_s_f_btn.clicked.connect(self.open_s_f_path)
@@ -103,12 +81,11 @@ class Ui_page(QWidget):
         self.config_save_file_lay.addWidget(self.cfg_s_f_input)
         self.config_save_file_lay.addWidget(self.cfg_s_f_btn)
 
-        self.save_btn = QPushButton("💾 批量OCR")
+        self.save_btn = QPushButton("💾 批量转图片")
         self.save_btn.clicked.connect(self.begin_task)
         self.status_label = QLabel("任务未开始")
 
         self.group_lay.addLayout(self.config_get_file_lay)
-        self.group_lay.addLayout(self.config_output_lay)
         self.group_lay.addLayout(self.config_save_file_lay)
         self.group_lay.addWidget(self.save_btn)
         self.group_lay.addStretch()
@@ -120,7 +97,7 @@ class Ui_page(QWidget):
         self.jiaocheng_lay = QVBoxLayout()
         self.jc_label = QLabel()
         show_text = """
-        <html>
+                        <html>
         <head>
         <style>
             body {
@@ -164,33 +141,38 @@ class Ui_page(QWidget):
                 margin-left: 6px;
                 padding: 2px 0;
             }
-
         </style>
         </head>
         <body>
-        <div class="title">📖 批量缩放说明</div>
+        <div class="title">📖 批量合并说明</div>
 
-        <div class="highlight">🎯 一次处理整个文件夹里的所有图片</div>
+        <div class="highlight">🎯 一次把整个文件夹的 PDF 合成一份</div>
 
-        <div class="section">🚀 操作步骤</div>
-        <div class="item">  选文件夹 → 填尺寸 → 选输出位置 → 点批量缩放</div>
-        <div class="example">尺寸格式：宽 x 高，例如 800 x 600；DPI 选填</div>
+        <div class="section">🚀 三步搞定</div>
+        <div class="item">1️⃣ 📂 选文件夹</div>
+        <div class="example">文件夹里有多少 PDF，就自动并多少</div>
+        <div class="item">2️⃣ 💾 选存储位置</div>
+        <div class="example">合并后的文件就放在这里</div>
+        <div class="item">3️⃣ 🔗 点合并</div>
+        <div class="example">一键批量处理，无需逐个打开</div>
 
-        <div class="section">📁 输出结果</div>
-        <div class="example">缩放后文件名加 _new 后缀，保持原格式，原文件不动</div>
+        <div class="section">📁 输出长这样</div>
+        <div class="example">📂 待合并/（里面有 3 个 PDF）</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;├─ 📄 报告.pdf</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;├─ 📄 合同.pdf</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;└─ 📄 手册.pdf</div>
+        <div class="example">👇 合并后，全部拼成一份</div>
+        <div class="example">📂 合并结果/</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;└─ 📄 output.pdf</div>
 
-        <div class="section">⚠️ 注意</div>
-        <div class="item">• 不支持动图，GIF/WebP 动图只保留第一帧</div>
-        <div class="item">• 非 .png 后缀的透明图会丢失透明背景</div>
-        <div class="item">• 同名文件会被覆盖；请勿使用以 _new 结尾的图片</div>
-
-        <div class="section">✅ 放心</div>
-        <div class="item">• 保持原格式，PNG 还是 PNG</div>
-        <div class="item">• 自动纠正手机照片方向</div>
-        <div class="item">• 会生成新文件，原文件不动</div>
+        <div class="section">⚠️ 小提示</div>
+        <div class="item">✅ 只认 .pdf，其他文件自动跳过</div>
+        <div class="item">✅ 原文件不动，放心并</div>
+        <div class="item">📑 按文件名排序，顺序即合并顺序</div>
+        <div class="item">❗ 同名 output.pdf 会被覆盖</div><br><br>
         </body>
         </html>
-        """
+                        """
         self.jc_label.setText(show_text)
         self.jiaocheng_lay.addWidget(self.jc_label)
         self.jiaocheng_lay.addStretch()
@@ -228,20 +210,19 @@ class Ui_page(QWidget):
         folder_path = self.cfg_g_f_input.text()
 
         if not os.path.isdir(folder_path):
-            QMessageBox.warning(self, "警告", "选择图片的文件夹路径无效")
+            QMessageBox.warning(self, "警告", "读取PDF的文件夹路径无效")
             return
 
         save_path = self.cfg_s_f_input.text()
 
         if not os.path.isdir(save_path):
-            QMessageBox.warning(self, "警告", "存储缩放后的图片文件夹路径无效")
+            QMessageBox.warning(self, "警告", "存储图片的文件夹路径无效")
             return
 
-        output_method=self.cfg_o_m_combox.currentIndex()
+
         datas = {
             "folder_path": folder_path,
             "save_path": save_path,
-            "output_method": output_method
         }
         self.save_btn.setEnabled(False)
 
@@ -267,3 +248,4 @@ class Ui_page(QWidget):
         self.thread_cf.quit()
         self.thread_cf.wait()
         self.thread_cf.deleteLater()
+
