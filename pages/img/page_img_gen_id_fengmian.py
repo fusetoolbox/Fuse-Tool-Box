@@ -230,6 +230,8 @@ class Ui_page(QWidget):
 
     def show_img(self):
         img = self.create_img(1)
+        if img==None:
+            return
         byte_array = QByteArray()
         buffer = QBuffer(byte_array)
         buffer.open(QIODevice.OpenModeFlag(2))
@@ -293,6 +295,8 @@ class Ui_page(QWidget):
 
     def create_img(self, bianhao):
         get_data = self.get_info()
+        if get_data["msg"]=="error":
+            return
 
         plain_text_list = get_data["plain_text"].split("\n")
 

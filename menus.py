@@ -13,6 +13,9 @@ menus = [
         {"page_id": "page_pdf_tiqu", "tool_name": "PDF提取"},
         {"page_id": "page_pdf_toimg", "tool_name": "PDF转图片"},
     ]},
+    {"menu_name": "EXCEL处理", "child": [
+        {"page_id": "page_excel_hebing", "tool_name": "Excel合并"},
+    ]},
     {"menu_name": "编号工具", "child": [
         {"page_id": "page_ids_gen", "tool_name": "批量生成编号"},
     ]},

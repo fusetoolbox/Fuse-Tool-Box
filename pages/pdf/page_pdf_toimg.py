@@ -36,9 +36,9 @@ class WorkChaiFen(QObject):
                 # 打开源文件
                 with pymupdf.open(path) as doc:
                     total_pages = len(doc)
-                    mat = pymupdf.Matrix(4, 4)
+                    mat = pymupdf.Matrix(2, 2)
                     for page_idx in range(total_pages):
-                        self.progress.emit(f"⏳ {num_task}/{all_task} 文件：{file_name} 第{page_idx}页")
+                        self.progress.emit(f"⏳ {num_task}/{all_task} 文件：{file_name} 第{page_idx+1}页")
                         page = doc[page_idx]
                         pix = page.get_pixmap(matrix=mat, alpha=False)
                         img_save_path =f"{output_dir/file_name}_{page_idx + 1}.jpg"
@@ -96,6 +96,7 @@ class Ui_page(QWidget):
         self.groupbox_jiaocheng.setTitle("教程")
         self.jiaocheng_lay = QVBoxLayout()
         self.jc_label = QLabel()
+        self.jc_label = QLabel()
         show_text = """
                         <html>
         <head>
@@ -144,35 +145,43 @@ class Ui_page(QWidget):
         </style>
         </head>
         <body>
-        <div class="title">📖 批量合并说明</div>
+        <div class="title">📖 PDF 批量转图片说明</div>
 
-        <div class="highlight">🎯 一次把整个文件夹的 PDF 合成一份</div>
+        <div class="highlight">🎯 一次把整个文件夹的 PDF 转成逐页图片</div>
 
         <div class="section">🚀 三步搞定</div>
         <div class="item">1️⃣ 📂 选文件夹</div>
-        <div class="example">文件夹里有多少 PDF，就自动并多少</div>
+        <div class="example">文件夹里有多少 PDF，就自动转多少</div>
         <div class="item">2️⃣ 💾 选存储位置</div>
-        <div class="example">合并后的文件就放在这里</div>
-        <div class="item">3️⃣ 🔗 点合并</div>
+        <div class="example">每个 PDF 会在这里生成一个同名子文件夹</div>
+        <div class="item">3️⃣ 🖼️ 点转换</div>
         <div class="example">一键批量处理，无需逐个打开</div>
 
         <div class="section">📁 输出长这样</div>
-        <div class="example">📂 待合并/（里面有 3 个 PDF）</div>
+        <div class="example">📂 待转换/（里面有 3 个 PDF）</div>
         <div class="example">&nbsp;&nbsp;&nbsp;├─ 📄 报告.pdf</div>
         <div class="example">&nbsp;&nbsp;&nbsp;├─ 📄 合同.pdf</div>
         <div class="example">&nbsp;&nbsp;&nbsp;└─ 📄 手册.pdf</div>
-        <div class="example">👇 合并后，全部拼成一份</div>
-        <div class="example">📂 合并结果/</div>
-        <div class="example">&nbsp;&nbsp;&nbsp;└─ 📄 output.pdf</div>
+        <div class="example">👇 转换后，每个 PDF 一个文件夹</div>
+        <div class="example">📂 转换结果/</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;├─ 📂 报告/</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├─ 🖼️ 报告_1.jpg</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└─ 🖼️ 报告_2.jpg</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;├─ 📂 合同/</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└─ 🖼️ 合同_1.jpg</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;└─ 📂 手册/</div>
+        <div class="example">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 🖼️ 手册_1.jpg</div>
 
         <div class="section">⚠️ 小提示</div>
         <div class="item">✅ 只认 .pdf，其他文件自动跳过</div>
-        <div class="item">✅ 原文件不动，放心并</div>
-        <div class="item">📑 按文件名排序，顺序即合并顺序</div>
-        <div class="item">❗ 同名 output.pdf 会被覆盖</div><br><br>
+        <div class="item">✅ 原文件不动，放心转</div>
+        <div class="item">📑 按文件名排序，逐个处理</div>
+        <div class="item">🖼️ 图片为 JPG 格式，按页编号命名</div>
+        <div class="item">📁 同名输出文件夹会被复用，内容可能覆盖</div><br><br>
         </body>
         </html>
                         """
+        self.jc_label.setText(show_text)
         self.jc_label.setText(show_text)
         self.jiaocheng_lay.addWidget(self.jc_label)
         self.jiaocheng_lay.addStretch()

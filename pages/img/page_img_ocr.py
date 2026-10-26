@@ -164,30 +164,30 @@ class Ui_page(QWidget):
                 margin-left: 6px;
                 padding: 2px 0;
             }
-
         </style>
         </head>
         <body>
-        <div class="title">📖 批量缩放说明</div>
+        <div class="title">📖 批量 OCR 说明</div>
 
-        <div class="highlight">🎯 一次处理整个文件夹里的所有图片</div>
+        <div class="highlight">🎯 一次识别整个文件夹里的所有图片文字</div>
 
         <div class="section">🚀 操作步骤</div>
-        <div class="item">  选文件夹 → 填尺寸 → 选输出位置 → 点批量缩放</div>
-        <div class="example">尺寸格式：宽 x 高，例如 800 x 600；DPI 选填</div>
+        <div class="item">  选图片文件夹 → 选输出方式 → 选存储位置 → 点批量 OCR</div>
+        <div class="example">输出方式：单个文本文件（全部合并） / 多个文本文件（每图一个）</div>
 
         <div class="section">📁 输出结果</div>
-        <div class="example">缩放后文件名加 _new 后缀，保持原格式，原文件不动</div>
+        <div class="item">• 单个文本文件：生成 ocr_results.txt，按文件名分节合并</div>
+        <div class="example">　格式：===== 图片名 ===== 换行 识别文字 换行 空行</div>
+        <div class="item">• 多个文本文件：每张图生成同名 .txt（与原图同目录名）</div>
 
         <div class="section">⚠️ 注意</div>
-        <div class="item">• 不支持动图，GIF/WebP 动图只保留第一帧</div>
-        <div class="item">• 非 .png 后缀的透明图会丢失透明背景</div>
-        <div class="item">• 同名文件会被覆盖；请勿使用以 _new 结尾的图片</div>
+        <div class="item">• 首次运行会准备运行环境，可能会比较慢</div>
+        <div class="item">• 识别结果覆盖写入，同名 .txt 会被直接替换</div>
 
         <div class="section">✅ 放心</div>
-        <div class="item">• 保持原格式，PNG 还是 PNG</div>
-        <div class="item">• 自动纠正手机照片方向</div>
-        <div class="item">• 会生成新文件，原文件不动</div>
+        <div class="item">• 只在存储位置生成 .txt，原图片不动</div>
+        <div class="item">• 自动处理中文、英文及常见符号</div>
+
         </body>
         </html>
         """

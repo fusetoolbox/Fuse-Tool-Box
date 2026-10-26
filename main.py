@@ -421,7 +421,8 @@ class MyWindow(Ui_Form):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MyWindow()
-    window.show()
     apply_stylesheet(app, theme='light_blue_500.xml')
+    window.show()
+
 
     sys.exit(app.exec())

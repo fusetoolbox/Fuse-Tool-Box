@@ -210,7 +210,7 @@ class Ui_page(QWidget):
         save_path = self.cfg_s_f_input.text()
 
         if not os.path.isdir(save_path):
-            QMessageBox.warning(self, "警告", "存储拆分后的PDF的文件夹路径无效")
+            QMessageBox.warning(self, "警告", "存储合并后的PDF的文件夹路径无效")
             return
 
 
