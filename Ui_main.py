@@ -49,7 +49,7 @@ class Ui_Form(QWidget):
             }
         """)
         self.index_layout = QVBoxLayout()
-        self.logo_label = QLabel("🔧 开源工具箱")
+        self.logo_label = QLabel("🔧 Fuse工具箱")
         self.logo_label.setAlignment(Qt.AlignmentFlag(4))
         self.logo_label.setStyleSheet("""
             color: #2d3436;

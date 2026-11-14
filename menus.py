@@ -16,10 +16,12 @@ menus = [
     {"menu_name": "EXCEL处理", "child": [
         {"page_id": "page_excel_hebing", "tool_name": "Excel合并"},
     ]},
+    {"menu_name": "文件处理", "child": [
+        {"page_id": "page_file_change_by_text", "tool_name": "批量改名"},
+        {"page_id": "page_file_create_dir", "tool_name": "创建文件夹"},
+    ]},
     {"menu_name": "编号工具", "child": [
         {"page_id": "page_ids_gen", "tool_name": "批量生成编号"},
     ]},
-    {"menu_name": "文件改名", "child": [
-        {"page_id": "page_filename_change_by_text", "tool_name": "批量改名"},
-    ]},
+
 ]

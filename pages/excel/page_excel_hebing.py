@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGroup
 
 class WorkChaiFen(QObject):
     finished = Signal(str)
+    progress = Signal(str)
 
     def normalize_header(self, h):
         """表头标准化：全角转半角、去空格、去常见括号/冒号、统一小写"""

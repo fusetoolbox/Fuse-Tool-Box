@@ -22,7 +22,7 @@ class MyWindow(Ui_Form):
         <svg t="1791376899569" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5813" width="128" height="128"><path d="M1024 1024H0V409.6h1024zM51.2 972.8h921.6V460.8H51.2z" fill="#0099dd" p-id="5814"></path><path d="M1024 460.8H0V153.6h1024zM51.2 409.6h921.6V204.8H51.2z" fill="#0099dd" p-id="5815"></path><path d="M716.8 614.4H307.2V409.6h409.6z m-358.4-51.2h307.2V460.8H358.4zM819.2 204.8H204.8V0h614.4zM256 153.6h512V51.2H256z" fill="#0099dd" p-id="5816"></path></svg>
                 """
         self.setWindowIcon(self.svg_to_icon(svg_code))
-        self.version_label.setText("v1.0.5")
+        self.version_label.setText("v1.0.51")
         self.stackedWidget.setCurrentIndex(0)
         self.SOFTWARE_CREATED_AT = 1787229900
         self.treeWidget.itemClicked.connect(self.item_click)
